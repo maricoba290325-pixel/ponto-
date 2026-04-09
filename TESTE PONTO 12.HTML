@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>Sistema de Ponto - Administração</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    padding: 10px;
+}
+
+.header {
+    background: #1e3a8a;
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 1.3rem;
+    margin-bottom: 5px;
+}
+
+.header p {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+    color: #1e3a8a;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    border-left: 4px solid #1e3a8a;
+    padding-left: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #2563eb;
+    color: white;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+.btn-primary { background: #2563eb; color: white; }
+.btn-secondary { background: #475569; color: white; }
+.btn-success { background: #059669; color: white; }
+.btn-danger { background: #dc2626; color: white; }
+.btn-warning { background: #f59e0b; color: white; }
+
+select, input {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: white;
+}
+
+video {
+    width: 100%;
+    border-radius: 10px;
+    background: #000;
+    margin-top: 10px;
+    max-height: 280px;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+.status {
+    background: #f0f0f0;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.tabela-container {
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px 8px;
+    text-align: left;
+}
+
+th {
+    background: #eef2ff;
+}
+
+.badge {
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    margin-left: 8px;
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.historico-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.85rem;
+}
+
+canvas {
+    width: 100%;
+    height: 200px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 0.7rem;
+    color: #666;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    z-index: 2000;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Modal para câmera em tela cheia */
+.camera-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: black;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.camera-modal video {
+    width: 100%;
+    max-height: 70vh;
+    border-radius: 20px;
+    transform: scaleX(-1);
+}
+
+.camera-modal button {
+    max-width: 300px;
+    margin-top: 20px;
+}
+
+/* Botão de seleção de câmera */
+.camera-select {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.camera-select button {
+    flex: 1;
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+    body {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .card {
+        margin-bottom: 0;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📘 Técnico em Administração</h1>
+    <p>Controle de Frequência • RH • Reconhecimento Facial</p>
+</div>
+
+<div class="grid">
+    <!-- Card Colaboradores -->
+    <div class="card">
+        <h3>👥 Colaboradores <span class="badge" id="totalColab">0</span></h3>
+        <input type="text" id="buscaColab" placeholder="🔍 Buscar..." onkeyup="filtrarTabela()">
+        <div class="button-group">
+            <button class="btn-primary" onclick="adicionarColab()">➕ Adicionar</button>
+            <button class="btn-secondary" onclick="editarColab()">✏️ Editar</button>
+            <button class="btn-danger" onclick="excluirColab()">🗑️ Excluir</button>
+        </div>
+        <div class="tabela-container">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Nome</th><th>Face</th></tr>
+                </thead>
+                <tbody id="tabelaColab"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Card Cadastro Facial -->
+    <div class="card">
+        <h3>📸 Cadastro Facial</h3>
+        <select id="selectFace">
+            <option value="">Selecione um colaborador</option>
+        </select>
+        <div class="camera-select">
+            <button class="btn-secondary" onclick="abrirCamera('frente')">📷 Câmera Frontal</button>
+            <button class="btn-secondary" onclick="abrirCamera('tras')">📱 Câmera Traseira</button>
+        </div>
+        <button class="btn-success" onclick="salvarFace()">💾 Salvar Face</button>
+        <button class="btn-secondary" onclick="fecharCamera()">⏹️ Fechar Câmera</button>
+        <video id="videoCamera" autoplay playsinline muted></video>
+        <div id="statusFace" class="status">⚡ Aguardando</div>
+    </div>
+
+    <!-- Card Registro Ponto -->
+    <div class="card">
+        <h3>🤖 Registro de Ponto</h3>
+        <select id="selectPonto">
+            <option value="">Selecione um colaborador</option>
+        </select>
+        <button class="btn-primary" onclick="iniciarReconhecimento()">🎥 Reconhecimento Facial</button>
+        <div id="statusPonto" class="status">⚡ Aguardando</div>
+    </div>
+
+    <!-- Card Gestão -->
+    <div class="card">
+        <h3>📊 Gestão</h3>
+        <div class="button-group">
+            <button class="btn-primary" onclick="backup()">💾 Backup</button>
+            <button class="btn-success" onclick="exportarCSV()">📄 CSV</button>
+            <button class="btn-warning" onclick="exportarPDF()">🖨️ PDF</button>
+            <button class="btn-danger" onclick="limparTudo()">🗑️ Limpar</button>
+        </div>
+        <h3 style="margin-top:15px">📈 Frequência</h3>
+        <canvas id="grafico" width="400" height="200"></canvas>
+        <h3 style="margin-top:15px">📋 Últimos Registros</h3>
+        <div id="historico" class="status" style="max-height:200px; overflow-y:auto;"></div>
+    </div>
+</div>
+
+<div class="footer">
+    ⚙️ Sistema compatível com celular, tablet e notebook
+</div>
+
+<script>
+// DADOS
+let colaboradores = [];
+let registros = [];
+let cameraStream = null;
+let streamReconhecer = null;
+let timerReconhecer = null;
+let facingMode = "user"; // 'user' = frontal, 'environment' = traseira
+
+// NOMES DOS ALUNOS
+const nomesAlunos = [
+    "ANA BEATRYS LADICA DA SILVA", "ANA LÍVIA MACEDO ARAUJO", "ANDREI JOSE DA SILVA",
+    "DAFNE DA SILVA BORGES", "DEYVID NUNES PEREIRA", "FELIPE PEREIRA DA SILVA",
+    "GUILHERME DA SILVA MONTEIRO", "GUSTAVO SOARES GONÇALVES", "JHEMILY SOUSA LIMA",
+    "JOÃO VITOR PASCOAL MOURA", "JONAS RAMOS VELAME JUNIOR", "JUAN PABLO SOARES TEODORA",
+    "JÚLIA GOMES NOVAES", "KAYLANE SANTOS PACHECO", "LEONARDO DE ALMEIDA TELES",
+    "LIDIANE RICAELI OLIVEIRA DA SILVA", "LOHANY MOREIRA DA SILVA", "LUARA KELLY SOUZA VENZEL",
+    "LUDMILA BATISTA DA SILVA", "MARIA EDUARDA DOS SANTOS RODRIGUES", "MARIANA RIBEIRO LIMA RODRIGUES",
+    "MIGUEL CAMILO MARTINS", "MÔNICA DE FREITAS CONCEICAO", "NAYARA VITÓRIA FERREIRA DOS SANTOS",
+    "PAULO HENRIQUE VIEIRA GUSMÃO", "PIETRO JUNIOR ALVES DINIZ", "RAFAEL LOPES FARIA DA SILVA",
+    "RODRIGO ALVES FERNANDES", "SAMUEL DE OLIVEIRA ASSIS", "SOPHIA VITÓRIA OLIVEIRA DA SILVEIRA",
+    "GRAZIELLY JANAINA SIQUEIRA", "BEATRIZ RAISSA BRAGA GARCIA", "CAMILLY VITORIA MOURA BIZERRA",
+    "EMERSON ALVES DE OLIVEIRA", "EMILY ESTEFANI SANTOS SILVA", "EMILY RODRIGUES LOUREDO",
+    "ERIC FELIPE MENDES NEVES", "FERNANDA MOREIRA DA SILVA", "GABRIEL ANDRADE MACHADO",
+    "GABRIEL HENRIQUE NOBREGA FERNANDES", "GUSTAVO BERNARDO CAZUZA", "HUGO RAPHAEL SILVA FIGUEREDO",
+    "JAMILE VITÓRIA VIEIRA DA SILVA OLIVEIRA", "JENIFER EMANUELE DA SILVA SANTANA", "JOÃO PEDRO GOMES NOVAES",
+    "JÚLIA SANTOS MENDES", "KETELLYN MIRANDA DA SILVA", "KETELYN GABRIELI PORTES DIAS",
+    "LAVINNIA YUMI SOUZA MIYAMOTO", "LUCAS LEANDRO FERREIRA DE SOUZA", "LUCAS MORAES RODRIGUES",
+    "LUNA DE SÁ FRANÇA", "NICOLAS KEVIN RODRIGUES SANTANA", "NITHIELLY APARECIDA SILVA DOS SANTOS",
+    "PEDRO HENRIQUE FERREIRA DE PAULA SILVA", "RANIELI ORNELAS PINHEIRO", "SARA PEREIRA BRAZ DE PAIVA",
+    "TAIANE LORRANE RIBEIRO DA SILVA", "TAMIRES SILVA DE OLIVEIRA", "THAYNÁ VITORIA MOURA BIZERRA",
+    "THAYNARA BEATRIZ SABINO POSSANI", "VICTOR BERNARDO SILVA", "VINICIUS SILVA SANTOS",
+    "VITOR HUGO DA SILVA OLIVEIRA", "VIVIANE CARVALHO DA SILVA", "YASMIM VITÓRIA BALBINO DA SILVA",
+    "YASMIN KAUANI LOURENÇO DE CARLOS", "YASMIN PINHEIRO PEREIRA", "ISABELLA DE ALMEIDA BRANDÃO",
+    "MICHELLY EDUARDA DIAS DE DEUS", "FERNANDO FERNANDES MEDEIROS"
+];
+
+// REMOVER DUPLICATAS
+const nomesUnicos = [];
+const nomesVistos = new Set();
+for(let nome of nomesAlunos) {
+    let nomeUpper = nome.toUpperCase().trim();
+    if(!nomesVistos.has(nomeUpper)) {
+        nomesVistos.add(nomeUpper);
+        nomesUnicos.push(nome);
+    }
+}
+
+// CARREGAR DADOS
+function carregarDados() {
+    let dadosColab = localStorage.getItem("sistema_ponto_colab");
+    let dadosReg = localStorage.getItem("sistema_ponto_registros");
+    
+    if(dadosColab) {
+        colaboradores = JSON.parse(dadosColab);
+    } else {
+        colaboradores = [];
+        for(let i = 0; i < nomesUnicos.length; i++) {
+            colaboradores.push({
+                id: i + 1,
+                nome: nomesUnicos[i],
+                face: null
+            });
+        }
+        salvarDados();
+    }
+    
+    if(dadosReg) {
+        registros = JSON.parse(dadosReg);
+    } else {
+        registros = [];
+    }
+}
+
+function salvarDados() {
+    localStorage.setItem("sistema_ponto_colab", JSON.stringify(colaboradores));
+    localStorage.setItem("sistema_ponto_registros", JSON.stringify(registros));
+}
+
+function mostrarToast(msg) {
+    let toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
+
+function hoje() {
+    return new Date().toLocaleDateString("pt-BR");
+}
+
+function agora() {
+    return new Date().toLocaleTimeString("pt-BR");
+}
+
+// CÂMERA - CORRIGIDO PARA TABLET
+async function abrirCamera(tipo) {
+    try {
+        // Fecha câmera se já estiver aberta
+        if(cameraStream) {
+            fecharCamera();
+        }
+        
+        // Define qual câmera usar
+        if(tipo === 'frente') {
+            facingMode = 'user';
+        } else {
+            facingMode = { exact: 'environment' };
+        }
+        
+        const constraints = {
+            video: {
+                facingMode: facingMode,
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        };
+        
+        console.log("Tentando abrir câmera:", constraints);
+        
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        const videoElement = document.getElementById("videoCamera");
+        videoElement.srcObject = cameraStream;
+        videoElement.setAttribute("playsinline", true);
+        videoElement.setAttribute("autoplay", true);
+        
+        // Força o play
+        await videoElement.play();
+        
+        document.getElementById("statusFace").innerHTML = "📷 Câmera aberta! Posicione o rosto.";
+        mostrarToast("✅ Câmera aberta com sucesso!");
+        
+    } catch(err) {
+        console.error("Erro ao abrir câmera:", err);
+        
+        // Tenta com configuração mais simples se falhar
+        try {
+            if(cameraStream) fecharCamera();
+            
+            const constraintsSimple = {
+                video: true
+            };
+            
+            cameraStream = await navigator.mediaDevices.getUserMedia(constraintsSimple);
+            const videoElement = document.getElementById("videoCamera");
+            videoElement.srcObject = cameraStream;
+            videoElement.setAttribute("playsinline", true);
+            videoElement.setAttribute("autoplay", true);
+            await videoElement.play();
+            
+            document.getElementById("statusFace").innerHTML = "📷 Câmera aberta (modo simples)";
+            mostrarToast("✅ Câmera aberta!");
+            
+        } catch(err2) {
+            document.getElementById("statusFace").innerHTML = "❌ Erro: " + err2.message;
+            mostrarToast("❌ Não foi possível abrir a câmera. Verifique as permissões.");
+        }
+    }
+}
+
+function fecharCamera() {
+    if(cameraStream) {
+        cameraStream.getTracks().forEach(track => {
+            track.stop();
+        });
+        cameraStream = null;
+    }
+    const videoElement = document.getElementById("videoCamera");
+    if(videoElement) {
+        videoElement.srcObject = null;
+    }
+    document.getElementById("statusFace").innerHTML = "⏹️ Câmera fechada";
+}
+
+function salvarFace() {
+    let select = document.getElementById("selectFace");
+    let id = parseInt(select.value);
+    if(!id) {
+        document.getElementById("statusFace").innerHTML = "⚠️ Selecione um colaborador!";
+        return;
+    }
+    
+    let colab = colaboradores.find(c => c.id === id);
+    if(!colab) return;
+    
+    let video = document.getElementById("videoCamera");
+    if(!video.videoWidth || !video.videoHeight || video.videoWidth === 0) {
+        document.getElementById("statusFace").innerHTML = "❌ Abra a câmera primeiro!";
+        return;
+    }
+    
+    let canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    colab.face = canvas.toDataURL("image/jpeg", 0.7);
+    salvarDados();
+    atualizarTela();
+    document.getElementById("statusFace").innerHTML = `✅ Face de ${colab.nome} salva!`;
+    mostrarToast(`✅ Face de ${colab.nome} salva!`);
+}
+
+// RECONHECIMENTO
+async function iniciarReconhecimento() {
+    let select = document.getElementById("selectPonto");
+    let id = parseInt(select.value);
+    if(!id) {
+        mostrarToast("⚠️ Selecione um colaborador!");
+        return;
+    }
+    
+    let colab = colaboradores.find(c => c.id === id);
+    if(!colab) {
+        mostrarToast("❌ Colaborador não encontrado!");
+        return;
+    }
+    
+    // Simula reconhecimento facial (já que é um sistema simples)
+    // Em um sistema real, você compararia com a face salva
+    mostrarToast(`🎥 Reconhecendo ${colab.nome}...`);
+    document.getElementById("statusPonto").innerHTML = `📸 Reconhecendo ${colab.nome}...`;
+    
+    if(timerReconhecer) clearTimeout(timerReconhecer);
+    timerReconhecer = setTimeout(() => {
+        registrarPonto(id);
+    }, 2000);
+}
+
+function registrarPonto(id) {
+    let colab = colaboradores.find(c => c.id === id);
+    if(!colab) return;
+    
+    let data = hoje();
+    let hora = agora();
+    
+    let jaRegistrou = registros.some(r => r.idColab === colab.id && r.data === data);
+    
+    if(jaRegistrou) {
+        document.getElementById("statusPonto").innerHTML = `⚠️ ${colab.nome} já registrou hoje!`;
+        mostrarToast(`⚠️ ${colab.nome} já registrou ponto!`);
+        return;
+    }
+    
+    registros.push({
+        id: Date.now(),
+        idColab: colab.id,
+        nome: colab.nome,
+        data: data,
+        hora: hora,
+        origem: "facial"
+    });
+    
+    salvarDados();
+    atualizarTela();
+    document.getElementById("statusPonto").innerHTML = `✅ Ponto registrado para ${colab.nome} às ${hora}`;
+    mostrarToast(`✅ Ponto registrado para ${colab.nome}!`);
+}
+
+// ATUALIZAR TELA
+function atualizarTela() {
+    // Tabela
+    let busca = document.getElementById("buscaColab").value.toLowerCase();
+    let tbody = document.getElementById("tabelaColab");
+    tbody.innerHTML = "";
+    
+    let filtrados = colaboradores.filter(c => c.nome.toLowerCase().includes(busca));
+    for(let c of filtrados) {
+        let row = tbody.insertRow();
+        row.insertCell(0).innerHTML = c.id;
+        row.insertCell(1).innerHTML = c.nome;
+        row.insertCell(2).innerHTML = c.face ? "✅" : "❌";
+    }
+    document.getElementById("totalColab").innerHTML = colaboradores.length;
+    
+    // Selects
+    let selectFace = document.getElementById("selectFace");
+    let selectPonto = document.getElementById("selectPonto");
+    selectFace.innerHTML = '<option value="">Selecione</option>';
+    selectPonto.innerHTML = '<option value="">Selecione</option>';
+    
+    for(let c of colaboradores) {
+        selectFace.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
+        selectPonto.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
+    }
+    
+    // Histórico
+    let historicoDiv = document.getElementById("historico");
+    if(registros.length === 0) {
+        historicoDiv.innerHTML = "Nenhum registro ainda";
+    } else {
+        let html = "";
+        for(let i = registros.length-1; i >= 0 && i >= registros.length-15; i--) {
+            let r = registros[i];
+            html += `<div class="historico-item">📅 ${r.data} ${r.hora} • 👤 ${r.nome}</div>`;
+        }
+        historicoDiv.innerHTML = html;
+    }
+    
+    // Gráfico
+    desenharGrafico();
+}
+
+function filtrarTabela() {
+    atualizarTela();
+}
+
+// CRUD
+function adicionarColab() {
+    let nome = prompt("Digite o nome do colaborador:");
+    if(!nome || nome.trim() === "") return;
+    nome = nome.toUpperCase().trim();
+    
+    if(colaboradores.some(c => c.nome === nome)) {
+        alert("Colaborador já existe!");
+        return;
+    }
+    
+    let novoId = 1;
+    if(colaboradores.length > 0) novoId = Math.max(...colaboradores.map(c => c.id)) + 1;
+    
+    colaboradores.push({ id: novoId, nome: nome, face: null });
+    salvarDados();
+    atualizarTela();
+    mostrarToast("✅ Adicionado!");
+}
+
+function editarColab() {
+    let nome = prompt("Digite o nome do colaborador para editar:");
+    if(!nome) return;
+    nome = nome.toUpperCase().trim();
+    
+    let colab = colaboradores.find(c => c.nome === nome);
+    if(!colab) {
+        alert("Colaborador não encontrado!");
+        return;
+    }
+    
+    let novoNome = prompt("Novo nome:", colab.nome);
+    if(!novoNome || novoNome.trim() === "") return;
+    novoNome = novoNome.toUpperCase().trim();
+    
+    if(novoNome !== colab.nome && colaboradores.some(c => c.nome === novoNome)) {
+        alert("Já existe outro com este nome!");
+        return;
+    }
+    
+    colab.nome = novoNome;
+    for(let r of registros) {
+        if(r.idColab === colab.id) r.nome = novoNome;
+    }
+    salvarDados();
+    atualizarTela();
+    mostrarToast("✅ Editado!");
+}
+
+function excluirColab() {
+    let nome = prompt("Digite o nome do colaborador para excluir:");
+    if(!nome) return;
+    nome = nome.toUpperCase().trim();
+    
+    let colab = colaboradores.find(c => c.nome === nome);
+    if(!colab) {
+        alert("Colaborador não encontrado!");
+        return;
+    }
+    
+    if(confirm(`Excluir ${colab.nome} permanentemente?`)) {
+        colaboradores = colaboradores.filter(c => c.id !== colab.id);
+        registros = registros.filter(r => r.idColab !== colab.id);
+        salvarDados();
+        atualizarTela();
+        mostrarToast("✅ Excluído!");
+    }
+}
+
+// EXPORTAÇÕES
+function backup() {
+    let dados = { colaboradores, registros };
+    let blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    mostrarToast("✅ Backup salvo!");
+}
+
+function exportarCSV() {
+    let csv = "ID,Nome,Data,Hora,Origem\n";
+    for(let r of registros) {
+        csv += `${r.idColab},${r.nome},${r.data},${r.hora},${r.origem}\n`;
+    }
+    let blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `ponto_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    mostrarToast("✅ CSV exportado!");
+}
+
+function exportarPDF() {
+    let win = window.open("", "_blank");
+    let linhas = "";
+    for(let i = registros.length-1; i >= 0; i--) {
+        let r = registros[i];
+        linhas += `<tr><td>${r.data}</td><td>${r.hora}</td><td>${r.nome}</td><td>${r.origem}</td></tr>`;
+    }
+    
+    win.document.write(`
+        <html>
+        <head>
+            <title>Relatório de Ponto</title>
+            <style>
+                body{font-family:Arial;padding:20px;}
+                h1{color:#1e3a8a;}
+                table{width:100%;border-collapse:collapse;margin-top:20px;}
+                th,td{border:1px solid #ccc;padding:8px;text-align:left;}
+                th{background:#eef2ff;}
+                @media print{button{display:none;}}
+            </style>
+        </head>
+        <body>
+            <h1>📊 Relatório de Frequência</h1>
+            <p>Gerado em: ${new Date().toLocaleString("pt-BR")}</p>
+            <p>Total de colaboradores: ${colaboradores.length}</p>
+            <p>Total de registros: ${registros.length}</p>
+            <button onclick="window.print()">🖨️ Imprimir</button>
+            <table>
+                <thead><tr><th>Data</th><th>Hora</th><th>Colaborador</th><th>Origem</th></tr></thead>
+                <tbody>${linhas || "<tr><td colspan='4'>Nenhum registro</td></tr>"}</tbody>
+            </table>
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+function limparTudo() {
+    if(confirm("⚠️ ATENÇÃO! Isso vai apagar TODOS os dados!\nDeseja continuar?")) {
+        localStorage.removeItem("sistema_ponto_colab");
+        localStorage.removeItem("sistema_ponto_registros");
+        carregarDados();
+        atualizarTela();
+        mostrarToast("✅ Dados resetados!");
+    }
+}
+
+// GRÁFICO
+function desenharGrafico() {
+    let canvas = document.getElementById("grafico");
+    let ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if(registros.length === 0) {
+        ctx.fillStyle = "#666";
+        ctx.font = "14px Arial";
+        ctx.fillText("Nenhum registro ainda", 130, 100);
+        return;
+    }
+    
+    let contagem = {};
+    for(let r of registros) {
+        contagem[r.nome] = (contagem[r.nome] || 0) + 1;
+    }
+    
+    let topo = Object.entries(contagem).sort((a,b) => b[1] - a[1]).slice(0, 6);
+    
+    if(topo.length === 0) return;
+    
+    let maxValor = Math.max(...topo.map(v => v[1]), 1);
+    let largura = (canvas.width - 60) / topo.length;
+    if(largura > 50) largura = 50;
+    
+    for(let i = 0; i < topo.length; i++) {
+        let nome = topo[i][0];
+        let valor = topo[i][1];
+        let x = i * (largura + 10) + 30;
+        let altura = (valor / maxValor) * 120;
+        let y = 160 - altura;
+        
+        ctx.fillStyle = "#2563eb";
+        ctx.fillRect(x, y, largura - 5, altura);
+        
+        ctx.fillStyle = "#333";
+        ctx.font = "10px Arial";
+        let nomeCurto = nome.length > 12 ? nome.substring(0,10)+"..." : nome;
+        ctx.fillText(nomeCurto, x, 175);
+        
+        ctx.fillStyle = "#2563eb";
+        ctx.font = "bold 10px Arial";
+        ctx.fillText(valor, x + largura/3, y - 3);
+    }
+}
+
+// INICIAR
+carregarDados();
+atualizarTela();
+
+// Fechar streams ao sair
+window.addEventListener("beforeunload", () => {
+    if(cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+    if(streamReconhecer) streamReconhecer.getTracks().forEach(t => t.stop());
+});
+
+// Verificar permissão da câmera ao carregar
+async function verificarCamera() {
+    try {
+        const hasCamera = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = hasCamera.filter(device => device.kind === 'videoinput');
+        if(videoDevices.length === 0) {
+            console.log("Nenhuma câmera encontrada");
+        } else {
+            console.log(`Encontradas ${videoDevices.length} câmeras`);
+        }
+    } catch(e) {
+        console.log("Erro ao verificar câmeras:", e);
+    }
+}
+
+verificarCamera();
+</script>
+</body>
+</html>
